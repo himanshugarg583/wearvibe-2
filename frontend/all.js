@@ -67,150 +67,41 @@ const fetchProfile = async () => {
 };
 
 
-// brand category data filter 
-document.addEventListener("DOMContentLoaded", async function () {
-    let allProducts = [];
-    let selectedBrands = new Set();
 
-    const productContainer = document.getElementById("product-grid");
-    const brandOptions = document.getElementById("brandOptions");
+
+document.addEventListener("DOMContentLoaded",async function () {
+
 
     try {
-        // **Get Brands**
-        const brandResponse = await fetch("http://localhost:3000/api/getBrand");
-        const brandData = await brandResponse.json();
-
-        if (brandData.success) {
-            brandOptions.innerHTML = ""; // Clear old options
-            brandData.brands.forEach(brand => {
-                const label = document.createElement("label");
-                label.classList.add("flex", "items-center", "cursor-pointer");
-
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = brand;
-                checkbox.classList.add("mr-2");
-
-                checkbox.addEventListener("change", function () {
-                    if (this.checked) {
-                        selectedBrands.add(this.value);
-                    } else {
-                        selectedBrands.delete(this.value);
-                    }
-                    filterProducts(); // Filter products when checkbox is clicked
-                });
-
-                label.appendChild(checkbox);
-                label.appendChild(document.createTextNode(brand));
-                brandOptions.appendChild(label);
-            });
+        const response = await fetch("http://localhost:3000/api/getBrand"); // Apna backend URL use karein
+        const data = await response.json();
+      
+        console.log(data, "getbrandssss");
+      
+        if (data.success) {
+          const brandOptions = document.getElementById("brandOptions");
+          brandOptions.innerHTML = ""; // Purane elements clear karne ke liye
+      
+          data.brands.forEach((brand) => {
+            const label = document.createElement("label");
+            label.classList.add("flex", "items-center", "space-x-2",  "cursor-pointer");
+      
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.value = brand;
+            checkbox.classList.add("mr-2");
+      
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(brand));
+      
+            brandOptions.appendChild(label);
+          });
         }
-
-        // **Get All Products**
-        const productResponse = await fetch("http://localhost:3000/api/getAllProduct");
-        const productData = await productResponse.json();
-
-        if (productData.success) {
-            allProducts = productData.data; // Store all products
-            renderProducts(allProducts); // Initially show all products
-        }
-
-    } catch (error) {
-        console.error("Error:", error);
-    }
-
-    // **Filter Products Function**
-    function filterProducts() {
-        if (selectedBrands.size === 0) {
-            renderProducts(allProducts); // Show all if no brand selected
-        } else {
-            const filtered = allProducts.filter(product => selectedBrands.has(product.brand));
-            renderProducts(filtered);
-        }
-    }
-
-    // **Render Products Function (Using Card Layout)**
-    function renderProducts(products) {
-        productContainer.innerHTML = ""; // Clear previous products
-        products.forEach(product => {
-            const productCard = `
-                <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
-                    <div class="relative overflow-hidden">
-                        <div class="relative w-full h-64 overflow-hidden">
-                            <img src="http://localhost:3000/${product.images[0]}" 
-                                 alt="Product Image" 
-                                 class="w-full h-full object-cover absolute inset-0 transition-opacity duration-500 opacity-100 hover:opacity-0">
-                            <img src="http://localhost:3000/${product.images[1] || product.images[0]}" 
-                                 alt="Product Image" 
-                                 class="w-full h-full object-cover absolute inset-0 transition-opacity duration-500 opacity-0 hover:opacity-100">
-                        </div>
-                        ${product.discount ? `<div class="absolute top-3 left-3">
-                            <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">-${product.discount}%</span>
-                        </div>` : ''}
-                                             <div class="absolute top-3 right-3 flex flex-col gap-2">
-                           <button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gray-50" 
-    onclick='addToWishlist(
-        "${product._id}", 
-        "${product.productName.replace(/"/g, '&quot;')}", 
-        ${product.finalPrice}, 
-        "http://localhost:3000/${product.images.length > 0 ? product.images[0] : 'uploads/default.jpg'}",
-        ${product.price || 0}, 
-        "${product.description.replace(/"/g, '&quot;') || ''}", 
-        "${product.category || ''}", 
-        ${product.discount || 0}, 
-        ${JSON.stringify(product.colors || [])}, 
-        ${JSON.stringify(product.sizes || [])}
-    )'>
-    <span class="material-symbols-outlined text-red-500">favorite</span>
-</button>
-
-                                <button class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-gray-50" onclick="shareProduct('${product.name}')">
-                                    <span class="material-symbols-outlined">share</span>
-                                </button>
-                            </div>
-                    </div>
-
-
-                    
-                    <div class="p-4">
-                        <h3 class="font-extrabold">${product.productName}</h3>
-                        <p class="text-sm text-gray-500">${product.description}</p>
-                        <p class="text-sm text-gray-500">Brand: ${product.brand}</p>
-                        <p class="text-sm text-gray-500">${product.category}</p>
-                        <div class="flex items-center justify-between mt-3">
-                            <div class="space-x-0.5">
-                                <span class="font-bold text-lg">₹${product.finalPrice}</span>
-                                ${product.price ? `<span class="text-sm text-gray-500 line-through">₹${product.price}</span>` : ''}
-                                <span class="text-amber-500 text-xs"> %(${product.discount} OFF)</span>
-                            </div>
-                        </div>
-                        <div class="flex gap-2 mt-3">
-                            ${product.sizes.map(size => `<button class="w-8 h-8 rounded-full border hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center text-sm">${size}</button>`).join('')}
-                        </div>
-                        <button class="bg-blue-500 text-white px-4 py-2 mt-3 w-full rounded-lg hover:bg-blue-600 transition transform hover:scale-105" 
-                            onclick='addToCart(
-                                "${product._id}", 
-                                "${product.productName.replace(/"/g, '&quot;')}", 
-                                ${product.finalPrice}, 
-                                "http://localhost:3000/${product.images[0]}",
-                                ${product.price || 0}, 
-                                "${product.description.replace(/"/g, '&quot;')}", 
-                                "${product.category || ''}", 
-                                ${product.discount || 0}, 
-                                ${JSON.stringify(product.colors || [])}, 
-                                ${JSON.stringify(product.sizes || [])}
-                            )'>
-                            Add to Cart
-                        </button>
-                    </div>
-                </div>
-            `;
-            productContainer.innerHTML += productCard;
-        });
-    }
-});
-
-
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+      
+  
 
 
 
@@ -219,7 +110,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const searchInput = document.getElementById("search");
     const priceRange = document.getElementById("priceRange");
     const maxPriceLabel = document.getElementById("maxPriceLabel");
-
+    
 
     categoryFilters.forEach(filter => {
         filter.addEventListener('change', fetchFilteredProducts);
@@ -230,23 +121,23 @@ document.addEventListener("DOMContentLoaded", async function () {
         // fetchFilteredProducts();
         debouncedFetchFilteredProducts();
     });
-
+    
 
 
 
     // Debounce function
-    function debounce(func, delay) {
-        let timeoutId;
-        return function (...args) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(() => func(...args), delay);
-        };
-    }
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func(...args), delay);
+    };
+}
     async function fetchFilteredProducts() {
         const query = searchInput.value.trim();
-        const maxPrice = priceRange.value;
+        const maxPrice = priceRange.value; 
 
-
+      
         const pathSegments = window.location.pathname.split("/").filter(Boolean);
         let category = pathSegments[pathSegments.length - 1].replace(".html", "").toLowerCase();
         if (!["men", "woman", "kids", "couple"].includes(category)) {
@@ -254,7 +145,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
         const selectedCategory = document.querySelector('input[name="clothes"]:checked').value;
         try {
-            const res = await fetch(`http://localhost:3000/api/search?q=${query}&category=${selectedCategory || category}&maxPrice=${maxPrice}`);
+            const res = await fetch(`http://localhost:3000/api/search?q=${query}&category=${selectedCategory||category}&maxPrice=${maxPrice}`);
             const data = await res.json();
 
             if (data.success) {
@@ -267,10 +158,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    const debouncedFetchFilteredProducts = debounce(fetchFilteredProducts, 500);
+    const debouncedFetchFilteredProducts = debounce(fetchFilteredProducts, 500); 
     searchInput.addEventListener("input", debouncedFetchFilteredProducts);
-// });
-
+});
+    
 
 // Attach the debounced function to the input event listener
 
@@ -303,9 +194,10 @@ function renderSearchResults(products) {
         `;
         productGrid.innerHTML += productCard;
     });
-
-    // Remove the automatic page reload
-    // searchInput.value = ""; // Optional: Clear the search input if needed
+    searchInput.value = "";
+    setTimeout(() => {
+        location.reload();
+    }, 1500); 
 }
 
 
@@ -332,8 +224,8 @@ const fetchNavbar = async () => {
         navLinks.innerHTML = data.navbarLinks
             .map(link => `<li><a href="/frontend${link.path}.html" class="hover:underline" onclick="navigateToPage('${link.path}')">${link.name}</a></li>`)
             .join("");
-
-
+        
+     
     } catch (error) {
         console.log("Error fetching navbar:", error);
     }
@@ -341,52 +233,67 @@ const fetchNavbar = async () => {
 
 
 
-document.addEventListener("DOMContentLoaded", function () {
-    fetchProfile();
-});
-
-document.addEventListener("DOMContentLoaded", fetchNavbar, fetchProfile);
-document.addEventListener("DOMContentLoaded", function () {
-    const slider = document.getElementById("imageSlider");
-    const images = slider.getElementsByTagName("img");
-    const dots = document.querySelectorAll(".dot");
-    let index = 0;
-    let interval;
-
-    function updateSlider() {
-        slider.style.transform = `translateX(-${index * 100}%)`;
-        dots.forEach((dot, i) => {
-            dot.classList.toggle("bg-black", i === index);
-            dot.classList.toggle("bg-gray-300", i !== index);
-        });
-    }
-
-    function startSlider() {
-        interval = setInterval(() => {
-            index = (index + 1) % images.length;
-            updateSlider();
-        }, 1000); // Slide every 1 seconds
-    }
-
-    function stopSlider() {
-        clearInterval(interval);
-    }
-
-    dots.forEach((dot, i) => {
-        dot.addEventListener("click", () => {
-            index = i;
-            updateSlider();
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+        fetchProfile();
     });
 
-    slider.parentElement.addEventListener("mouseenter", startSlider);
-    slider.parentElement.addEventListener("mouseleave", stopSlider);
+document.addEventListener("DOMContentLoaded", fetchNavbar,fetchProfile);
+        document.addEventListener("DOMContentLoaded", function () {
+            const slider = document.getElementById("imageSlider");
+            const images = slider.getElementsByTagName("img");
+            const dots = document.querySelectorAll(".dot");
+            let index = 0;
+            let interval;
 
-    updateSlider(); // Initialize the first dot as active
-});
+            function updateSlider() {
+                slider.style.transform = `translateX(-${index * 100}%)`;
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle("bg-black", i === index);
+                    dot.classList.toggle("bg-gray-300", i !== index);
+                });
+            }
+
+            function startSlider() {
+                interval = setInterval(() => {
+                    index = (index + 1) % images.length;
+                    updateSlider();
+                }, 1000); // Slide every 1 seconds
+            }
+
+            function stopSlider() {
+                clearInterval(interval);
+            }
+
+            dots.forEach((dot, i) => {
+                dot.addEventListener("click", () => {
+                    index = i;
+                    updateSlider();
+                });
+            });
+
+            slider.parentElement.addEventListener("mouseenter", startSlider);
+            slider.parentElement.addEventListener("mouseleave", stopSlider);
+
+            updateSlider(); // Initialize the first dot as active
+        });
+        
 
 
+// add to cart  
 
+
+const cartCount = document.getElementById('cart-count');
+const favoriteCount = document.getElementById('favorite-count');
+
+function addToCart() {
+    let count = parseInt(cartCount.innerText);
+    cartCount.innerText = count + 1;
+}
+
+function addToWishlist() {
+    let count = parseInt(favoriteCount.innerText);
+    favoriteCount.innerText = count + 1;
+}
 
 function shareProduct(productName) {
     const url = `https://wa.me/?text=Check out this product: ${productName}`;
@@ -394,7 +301,7 @@ function shareProduct(productName) {
 }
 
 // Search functionality for colors
-document.getElementById('colorSearch').addEventListener('input', function () {
+document.getElementById('colorSearch').addEventListener('input', function() {
     const searchValue = this.value.toLowerCase();
     const colorButtons = document.querySelectorAll('#colorOptions button');
     colorButtons.forEach(button => {
@@ -427,27 +334,30 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
 
-const fetchProducts = async () => {
-    try {
-        const res = await fetch("http://localhost:3000/api/getAllProduct");
-        const data = await res.json();
-        console.log(data, "data received");
-        const Product = data.data
+ const fetchProducts = async () => {
+        try {
+            const res = await fetch("http://localhost:3000/api/getAllProduct");
+            const data = await res.json();
+                //  console.log(data.data,"data aa gya hai...");
+            const Product = data.data   
 
-        if (!data.data || !Array.isArray(data.data)) {
-            console.log("Invalid product data received.");
-            return;
-        }
+            if (!data.data || !Array.isArray(data.data)) {
+                console.log("Invalid product data received.");
+                return;
+            }
 
-        const productGrid = document.getElementById("product-grid");
-        productGrid.innerHTML = ""; // Clear existing content
 
-        Product.forEach(product => {
-            const productCard = `
-                    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer">
-                    onclick="window.location.href='/productdetail.html?id=${product._id}'">
+         
+
+            const productGrid = document.getElementById("product-grid");
+            productGrid.innerHTML = ""; // Clear existing content
+            console.log(Product,'jiii');
+            Product.forEach(product => {
+                const productCard = `
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group ">
+ 
                         <div class="relative overflow-hidden">
-<div class="relative w-full h-64 overflow-hidden">
+<div class="relative w-full h-64 overflow-hidden cursor-pointer">
     <!-- First Image (Default) -->
     <img src="http://localhost:3000/${product.images.length > 0 ? product.images[0] : 'uploads/default.jpg'}" 
          alt="Product Image" 
@@ -468,10 +378,7 @@ const fetchProducts = async () => {
         "${product.productName.replace(/"/g, '&quot;')}", 
         ${product.finalPrice}, 
         "http://localhost:3000/${product.images.length > 0 ? product.images[0] : 'uploads/default.jpg'}",
-        ${product.price || 0}, 
-        "${product.description.replace(/"/g, '&quot;') || ''}", 
         "${product.category || ''}", 
-        ${product.discount || 0}, 
         ${JSON.stringify(product.colors || [])}, 
         ${JSON.stringify(product.sizes || [])}
     )'>
@@ -485,9 +392,12 @@ const fetchProducts = async () => {
                             ${product.discount ? `<div class="absolute top-3 left-3"><span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs">-${product.discount}%</span></div>` : ''}
                         </div>
                         <div class="p-4">
-                          
-                            <h3 class=" font-extrabold">${product.productName}</h3>
-                            <h3 class="text-sm text-gray-500 ">${product.description}</h3>
+                            <div class="flex items-center gap-1 mb-2">
+                                ${Array(5).fill().map((_, i) => `<span class="material-symbols-outlined text-${i < product.ratings ? 'yellow' : 'gray'}-400 text-sm">star</span>`).join('')}
+                              
+                            </div>
+                            <h3 class="font-medium ">${product.productName}</h3>
+                            <h3 class="font-medium ">${product.description}</h3>
                             <p class="text-sm text-gray-500">${product.category}</p>
                           
                             <div class="flex items-center justify-between mt-3">
@@ -497,16 +407,14 @@ const fetchProducts = async () => {
                                       <span class="text-amber-500 text-xs"> %(${product.discount} OFF)</span>
                                 </div>
                             </div>
-            
-                            <div class="flex gap-2 mt-3">
-                                ${product.sizes.map(size => `<button class="w-8 h-8 rounded-full border hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center text-sm">${size}</button>`).join('')}
-                            </div>
+        
                  <button class="bg-blue-500 text-white px-4 py-2 mt-3 w-full rounded-lg hover:bg-blue-600 transition transform hover:scale-105" 
     onclick='addToCart(
         "${product._id}", 
+        "${product.vendor}", 
         "${product.productName.replace(/"/g, '&quot;')}", 
         ${product.finalPrice}, 
-        "http://localhost:3000/${product.images.length > 0 ? product.images[0] : 'uploads/default.jpg'}",
+        "http://localhost:3000/${product.images.length > 0 ?  product.images[0] : 'uploads/default.jpg'}",
         ${product.price || 0}, 
         "${product.description.replace(/"/g, '&quot;') || ''}", 
         "${product.category || ''}", 
@@ -521,25 +429,34 @@ const fetchProducts = async () => {
                         </div>
                     </div>
                 `;
-            productGrid.innerHTML += productCard;
-        });
-    } catch (error) {
-        console.log("Error fetching products:", error);
+
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = productCard;
+                const productElement = tempDiv.firstElementChild;
+                
+
+                const productImages = productElement.querySelectorAll("img");
+                
+                productImages.forEach((img) => {
+                    img.addEventListener("click", (event) => {
+                        event.stopPropagation(); 
+                        event.preventDefault();  
+                        window.location.href = `/frontend/src/components/Admin/FrontendLanding/productdetail.html?id=${product._id}`;
+                    });
+                });
+                
+                productGrid.appendChild(productElement)             
+});             
+        } catch (error) {
+            console.log("Error fetching products:", error);
+        }
+    
+    };
+
+    
+    function isUserLoggedIn() {
+        return getCookie("token") !== null;  
     }
-
-};
-
-
-
-
-
-
-
-
-function isUserLoggedIn() {
-    return getCookie("token") !== null;  
-}
-
 
 
 // Function to delete a cookie
@@ -553,9 +470,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Check if the user is logged in
     if (isUserLoggedIn()) {
-        logoutButton.style.display = "block"; // Show logout button
+        logoutButton.style.display = "block"; 
     } else {
-        logoutButton.style.display = "none"; // Hide logout button
+        logoutButton.style.display = "none"; 
     }
 
     // Logout button functionality
@@ -565,19 +482,17 @@ document.addEventListener("DOMContentLoaded", function () {
         if (confirmLogout) {
             deleteCookie("token"); // Remove token
             alert("You have been logged out.");
-            window.location.reload(); // Reload page to update UI
+            window.location.reload(); 
         }
     });
 });
-
 
 function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
     document.getElementById("cart-count").innerText = cart.length; // Show unique product count
 }
 
-
-async function addToCart(productId, productName, finalPrice, imageUrl, price, description, category, discount, colors, sizes) {
+async function addToCart(productId,vendor, productName, finalPrice, imageUrl, price, description, category, discount, colors, sizes) {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
     if (isUserLoggedIn()) {
@@ -601,7 +516,9 @@ async function addToCart(productId, productName, finalPrice, imageUrl, price, de
                         sizes: sizes,
                         colors: colors,
                         discount: discount,
-                        quantity: 1
+                        quantity: 1,
+                        vendor:vendor
+
                     }]
                 })
             });
@@ -633,71 +550,8 @@ async function addToCart(productId, productName, finalPrice, imageUrl, price, de
                 sizes: sizes,
                 colors: colors,
                 discount: discount,
-                quantity: 1
-            });
-        }
-
-        localStorage.setItem("cart", JSON.stringify(cart));
-        updateCartCount();
-    }
-}
-async function addToDetails(productId, productName, finalPrice, imageUrl, price, description, category, discount, colors, sizes) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-
-    if (isUserLoggedIn()) {
-        try {
-            const token = getCookie("token");
-            const res = await fetch("http://localhost:3000/api/createCart", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    cart: [{
-                        id: productId,
-                        name: productName,
-                        price: price,
-                        finalPrice: finalPrice,
-                        image: imageUrl,
-                        description: description,
-                        category: category,
-                        sizes: sizes,
-                        colors: colors,
-                        discount: discount,
-                        quantity: 1
-                    }]
-                })
-            });
-
-            const data = await res.json();
-            if (data.success) {
-                console.log("Product added to backend cart:", data);
-                updateCartCount();
-            } else {
-                console.log("Failed to add product to backend cart:", data.message);
-            }
-        } catch (error) {
-            console.log("Error adding product to backend cart:", error);
-        }
-    } else {
-        // Store in localStorage if user is not logged in
-        const existingProduct = cart.find(item => item.id === productId);
-        if (existingProduct) {
-            existingProduct.quantity += 1;
-        } else {
-            cart.push({
-                id: productId,
-                name: productName,
-                price: price,
-                finalPrice: finalPrice,
-                image: imageUrl,
-                description: description,
-                category: category,
-                sizes: sizes,
-                colors: colors,
-                discount: discount,
-                quantity: 1
+                quantity: 1,
+                // vendor:vendor
             });
         }
 
@@ -711,7 +565,6 @@ function updateWishListCount() {
     let wishList = JSON.parse(localStorage.getItem("wishList")) || [];
     document.getElementById("wishList-count").innerText = wishList.length; // Show unique product count
 }
-
 async function addToWishlist(productId, productName, finalPrice, imageUrl, price, description, category, discount, colors, sizes) {
     let wishList = JSON.parse(localStorage.getItem("wishList")) || [];
 
@@ -778,11 +631,11 @@ async function addToWishlist(productId, productName, finalPrice, imageUrl, price
 }
 
 
-document.addEventListener("DOMContentLoaded", updateCartCount);
-document.addEventListener("DOMContentLoaded",updateWishListCount);
+
+    document.addEventListener("DOMContentLoaded", updateCartCount);
+    document.addEventListener("DOMContentLoaded", updateWishListCount);
+    document.addEventListener("DOMContentLoaded", fetchProducts);
 
 
-
-document.addEventListener("DOMContentLoaded", fetchProducts);
 
 

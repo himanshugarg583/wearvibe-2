@@ -8,6 +8,7 @@ const OrderSchema = new mongoose.Schema({
     },
     items: [
         {
+            vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }, 
             productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
             name: { type: String, required: true },
             price: { type: Number, required: true },
@@ -23,7 +24,7 @@ const OrderSchema = new mongoose.Schema({
     totalMRP: { type: Number, required: true },
     totalDiscount: { type: Number, required: true },
     totalAmount: { type: Number, required: true },
-    address: { type: String, required: true }, // Delivery Address
+    address: { type: mongoose.Schema.Types.ObjectId, ref: "Address", },
     status: { 
         type: String, 
         enum: ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"], 

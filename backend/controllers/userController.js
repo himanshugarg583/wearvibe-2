@@ -73,10 +73,10 @@ exports.loginController = async (req, res) => {
 
         // Send token as a cookie
         res.cookie('token', token, {
-            httpOnly: true,  // Prevents access to cookie from JavaScript
-            secure: process.env.NODE_ENV === 'production',  // Set to true if using HTTPS
-            maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
-            sameSite: 'Strict'  // Makes the cookie only sent in first-party contexts
+            httpOnly: true,  
+            secure: process.env.NODE_ENV === 'production', 
+            maxAge: 7 * 24 * 60 * 60 * 1000,  
+            sameSite: 'Strict'  
         });
 
         return successResponse(res, "User successfully logged in", { 

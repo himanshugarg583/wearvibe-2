@@ -118,6 +118,7 @@ try {
 
 exports.createCartController = async (req, res) => {
     try {
+        console.log(req.body,'carttttt');
         const userId = req.user.userId;
         if (!userId) {
             return res.status(401).json({ success: false, message: "Unauthorized" });
@@ -141,6 +142,7 @@ exports.createCartController = async (req, res) => {
                 userCart.items[existingItemIndex].quantity += item.quantity;
             } else {
                 userCart.items.push({
+                    vendor:item.vendor,
                     productId: item.id,
                     name: item.name,
                     price: item.price,
@@ -176,7 +178,7 @@ exports.getCartController = async(req,res)=>{
             return res.status(200).json({ success: true, cart: [] });
         }
 
-        res.json({ success: true, cart: cart.items });
+        res.json({ success: true, cart: cart.items ,userId});
     } catch (error) {
         res.status(500).json({ success: false, message: "Server error" });
     }

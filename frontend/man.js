@@ -388,7 +388,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 const productCard = `
                     <div class="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 group">
                         <div class="relative overflow-hidden">
-<div class="relative w-full h-64 overflow-hidden">
+<div class="relative w-full h-64 overflow-hidden cursor-pointer">
     <!-- First Image (Default) -->
     <img src="http://localhost:3000/${product.images.length > 0 ? product.images[0] : 'uploads/default.jpg'}" 
          alt="Product Image" 
@@ -439,9 +439,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 </div>
                             </div>
             
-                            <div class="flex gap-2 mt-3">
-                                ${product.sizes.map(size => `<button class="w-8 h-8 rounded-full border hover:border-blue-500 hover:text-blue-500 transition-colors flex items-center justify-center text-sm">${size}</button>`).join('')}
-                            </div>
+                 
                  <button class="bg-blue-500 text-white px-4 py-2 mt-3 w-full rounded-lg hover:bg-blue-600 transition transform hover:scale-105" 
     onclick='addToCart(
         "${product._id}", 
@@ -462,8 +460,23 @@ document.addEventListener("DOMContentLoaded", function () {
                         </div>
                     </div>
                 `;
-                productGrid.innerHTML += productCard;
-            });
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = productCard;
+                const productElement = tempDiv.firstElementChild;
+                
+                // Select both images inside the product card
+                const productImages = productElement.querySelectorAll("img");
+                
+                productImages.forEach((img) => {
+                    img.addEventListener("click", (event) => {
+                        event.stopPropagation(); // Stop parent click event
+                        event.preventDefault();  // Prevent any unexpected behavior
+                        window.location.href = `/frontend/src/components/Admin/FrontendLanding/productdetail.html?id=${product._id}`;
+                    });
+                });
+                
+                productGrid.appendChild(productElement)      
+});           
         } catch (error) {
             console.log("Error fetching products:", error);
         }

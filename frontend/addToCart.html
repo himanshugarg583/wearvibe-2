@@ -203,6 +203,7 @@ async function fetchCartData() {
             });
 
             const data = await res.json();
+         console.log(data,'hihihihi');
             if (data.success) {
                 displayCartData(data.cart);
             } else {

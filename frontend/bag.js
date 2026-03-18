@@ -15,30 +15,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 
-// function addToCart(itemName, category,finalPrice,sizes,colors,price,discount, itemImage) {
-//     // Check if the item already exists in the cart
-//     let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-//     const existingItemIndex = cartItems.findIndex(item => item.name === itemName);
 
-//     if (existingItemIndex > -1) {
-//         // If the item already exists, increment the quantity
-//         cartItems[existingItemIndex].quantity += 1;
-//     } else {
-//         // If the item does not exist, add it to the cart
-//         cartItems.push({ name: itemName, finalPrice: finalPrice, quantity: 1, image: itemImage ,discount:discount,sizes:sizes,colors:colors,category:category,price:price,description:description});
-//     }
-
-//     // Save updated cart to local storage
-//     localStorage.setItem('cartItems', JSON.stringify(cartItems));
-
-//     // Update cart count
-//     const cartCount = document.getElementById('cart-count');
-//     cartCount.innerText = cartItems.reduce((total, item) => total + item.quantity, 0);
-//     localStorage.setItem('cartCount', cartCount.innerText); // Store the updated count in local storage
-
-//     // Optionally, update the UI to reflect the addition
-//     alert(`${itemName} has been added to your cart!`);
-// }
 
 function addToWishlist(itemName, itemPrice, itemImage) {
     // Check if the item already exists in the wishlist

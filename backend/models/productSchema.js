@@ -11,7 +11,7 @@ const productSchema = new mongoose.Schema({
     sizes: { type: [String], required:true  },
     colors: {type:[String],required:true},
     stock: { type: Number, default: 0 },
-    images: { type: [String], required: true }, // Array of image URLs
+    images: { type: [String], required: true }, 
     vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }, 
     createdAt: { type: Date, default: Date.now }
   });

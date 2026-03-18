@@ -8,6 +8,7 @@ const CartSchema = new mongoose.Schema({
     },
     items: [
         {
+            vendor: { type: mongoose.Schema.Types.ObjectId, ref: "Vendor" }, 
             productId: { type: mongoose.Schema.Types.ObjectId, ref: "Product", required: true },
             name: { type: String, required: true },
             price: { type: Number, required: true },
@@ -21,6 +22,7 @@ const CartSchema = new mongoose.Schema({
             sizes: { type: [String], default: [] }
         }
     ],
+
     totalQuantity: { type: Number, default: 0 },
     totalPrice: { type: Number, default: 0 },
 }, { timestamps: true });

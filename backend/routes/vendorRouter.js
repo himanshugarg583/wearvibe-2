@@ -24,4 +24,8 @@ router.patch('/changeRole/:userId',authMiddleware, roleMiddleware('admin'),  ven
 router.get('/getVendorBrand',authMiddleware,vendorController.getVendorBrandController)
 router.get('/getVendor',authMiddleware , vendorController.getVendorsController)
 
+
+// get today order at vendor dashboard 
+router.get('/getTodayOrder',authMiddleware,  vendorController.getTodayOrders)
+
 module.exports = router;

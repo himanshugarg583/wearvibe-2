@@ -100,16 +100,16 @@
                             <span class="material-symbols-outlined text-3xl text-pink-500">payments</span>
                             <span class="text-sm text-gray-500">Today's Sales</span>
                         </div>
-                        <h3 class="text-2xl font-semibold mb-1">₹24,500</h3>
-                        <p class="text-green-500 text-sm">+15% vs yesterday</p>
+                        <h3 class="text-2xl font-semibold mb-1" id="today-sales" >₹24,500</h3>
+                        <p class="text-green-500 text-sm">+0% vs yesterday</p>
                     </div>
                     <div class="card bg-blue-100 p-6 rounded-xl shadow-sm">
                         <div class="flex items-center justify-between mb-4">
                             <span class="material-symbols-outlined text-3xl text-blue-500">shopping_cart</span>
                             <span class="text-sm text-gray-500">Orders</span>
                         </div>
-                        <h3 class="text-2xl font-semibold mb-1">145</h3>
-                        <p class="text-green-500 text-sm">+8% vs yesterday</p>
+                        <h3 class="text-2xl font-semibold mb-1" id="order-count" >145</h3>
+                        <p class="text-green-500 text-sm" id="sales-change">+0% vs yesterday</p>
                     </div>
                     <div class="card bg-yellow-100 p-6 rounded-xl shadow-sm">
                         <div class="flex items-center justify-between mb-4">
@@ -117,14 +117,14 @@
                             <span class="text-sm text-gray-500">Inventory</span>
                         </div>
                         <h3 class="text-2xl font-semibold mb-1">1,240</h3>
-                        <p class="text-red-500 text-sm">-3% vs yesterday</p>
+                        <p class="text-red-500 text-sm">-0% vs yesterday</p>
                     </div>
                     <div class="card bg-green-100 p-6 rounded-xl shadow-sm">
                         <div class="flex items-center justify-between mb-4">
                             <span class="material-symbols-outlined text-3xl text-green-500">trending_up</span>
                             <span class="text-sm text-gray-500">Revenue</span>
                         </div>
-                        <h3 class="text-2xl font-semibold mb-1">₹156,300</h3>
+                        <h3 class="text-2xl font-semibold mb-1" id="revenue">₹156,300</h3>
                         <p class="text-green-500 text-sm">+12% vs yesterday</p>
                     </div>
                 </div>
@@ -331,6 +331,7 @@
             updateChartData(newSalesData);
         }, 5000);
     </script>
-    <script src="js/logout.js"></script>
+    <!-- <script src="js/logout.js"></script> -->
+    <script src="/frontend/vendorDash.js"></script>
 </body>
 </html>

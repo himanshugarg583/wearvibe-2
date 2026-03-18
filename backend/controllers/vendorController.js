@@ -2,6 +2,7 @@ const vendorRegSchema = require('../models/vendorRegSchema')
 const {successResponse,errorResponse} = require('../utils/response')
 const userSchema = require('../models/UserSchema')
 const brandSchema = require('../models/brandSchema')
+const Order = require('../models/orderSchema')
 // const mongoose = require('mongoose')
 
 exports.createVendorController = async (req,res) =>{
@@ -97,6 +98,55 @@ exports.getVendorsController = async (req, res) => {
         return errorResponse(res, "Error retrieving users", { error: error.message }, 500)
     }
 }
+
+
+
+exports.getTodayOrders = async (req, res) => {
+    try {
+        const vendorId = req.user.vendorId; // Assuming vendorId is stored in req.user
+
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date();
+        end.setHours(23, 59, 59, 999);
+
+        // Find orders which have at least one item belonging to the vendor
+        const orders = await Order.find({
+            createdAt: { $gte: start, $lt: end },
+            "items.vendor": vendorId
+        });
+
+        let totalSales = 0;
+        let totalOrders = orders.length;
+        let totalRevenue = 0;
+
+        const filteredOrders = orders.map(order => {
+            // Filter out only the items related to this vendor
+            const vendorItems = order.items.filter(item => item.vendor.toString() === vendorId);
+            
+            // Calculate total amount and revenue only for vendor's products
+            const orderTotalAmount = vendorItems.reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
+            const orderTotalMRP = vendorItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const orderTotalDiscount = orderTotalMRP - orderTotalAmount;
+
+            totalSales += orderTotalAmount;
+            totalRevenue += orderTotalMRP - orderTotalDiscount;
+
+            return {
+                ...order.toObject(),
+                items: vendorItems,
+                totalAmount: orderTotalAmount,
+                totalMRP: orderTotalMRP,
+                totalDiscount: orderTotalDiscount
+            };
+        });
+
+        res.json({ totalSales, totalOrders, totalRevenue, orders: filteredOrders });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 
 
 

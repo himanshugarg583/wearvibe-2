@@ -125,7 +125,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 🔥 Form Submit Handler
 
 
 
@@ -166,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fetch(`http://localhost:3000/api/editVendorProduct/${productId}`, {
             method: "PUT",
             headers: {
-                "Authorization": `Bearer ${token}` // ❌ DO NOT ADD 'Content-Type'
+                "Authorization": `Bearer ${token}` 
             },
             body: formData
         })

@@ -1,40 +1,74 @@
-// 🔥 Form Submit Handler
-    document.getElementById("editForm").addEventListener("submit", function (event) {
-        event.preventDefault();
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+require("dotenv").config();
 
-        const productId = document.getElementById("editProductId").value;
-        const updatedProduct = {
-            productName: document.getElementById("editProductName").value,
-            description: document.getElementById("editDescription").value,
-            category: document.getElementById("editCategory").value,
-            brand: document.getElementById("editBrand").value,
-            price: parseFloat(document.getElementById("editPrice").value),
-            discount: parseFloat(document.getElementById("editDiscount").value),
-            finalPrice: parseFloat(document.getElementById("editFinalPrice").value),
-            stock: parseInt(document.getElementById("editStock").value),
-            size: document.getElementById("editSize").value,
-            colors: document.getElementById("editColors").value.split(",").map(c => c.trim()),
+// Razorpay instance create karo
+const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+
+
+});
+console.log("Key ID:", process.env.RAZORPAY_KEY_ID);
+console.log("Key Secret:", process.env.RAZORPAY_KEY_SECRET);
+
+// Order create API
+exports.createOrderController =  async (req, res) => {
+    try {
+        const { amount, currency } = req.body;
+
+        const options = {
+            amount: amount * 100, 
+            currency: currency || "INR",
+            receipt: `receipt_${Date.now()}`,
         };
 
-        fetch(`http://localhost:3000/api/editVendorProduct/${productId}`, {
-            method: "PUT",
-            headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(updatedProduct)
-        })
-            .then(response => response.json())
-            .then(data => {
-                alert(data.message);
-                closeModal(); // Modal close karo
-                location.reload(); // Table update ke liye page reload
-            })
-            .catch(error => console.error("Error updating product:", error));
-    });
-});
+        const order = await razorpay.orders.create(options);
+        res.status(200).json({ success: true, order });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Order creation failed" });
+    }
+};
 
-// ❌ Close Modal Function
-function closeModal() {
-    document.getElementById("editModal").classList.add("hidden");
+exports.verifyPaymentController = (req,res)=>{
+    try {
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+        const generated_signature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(razorpay_order_id + "|" + razorpay_payment_id)
+            .digest("hex");
+
+        if (generated_signature === razorpay_signature) {
+            res.status(200).json({ success: true, message: "Payment Verified Successfully" });
+        } else {
+            res.status(400).json({ success: false, message: "Invalid Signature" });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ success: false, message: "Payment verification failed" });
+    }
+
 }
+
+
+// const auth = Buffer.from(`${process.env.RAZORPAY_KEY_ID}:${process.env.RAZORPAY_KEY_SECRET}`).toString("base64");
+
+
+
+// fetch("https://api.razorpay.com/v1/orders", {
+//     method: "POST",
+//     headers: {
+//         "Authorization": `Basic ${auth}`,
+//         "Content-Type": "application/json"
+//     },
+//     body: JSON.stringify({
+//         amount: 50000,
+//         currency: "INR",
+//         receipt: "receipt_123"
+//     })
+// })
+// .then(res => res.json())
+// .then(data => console.log(data))
+// .catch(err => console.error("Error:", err));
